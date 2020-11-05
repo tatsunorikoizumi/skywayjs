@@ -110,8 +110,7 @@ async function getRTCStats(statsObject){
     if(stat.id.indexOf('RTCCodec') !== -1){
         codecArray.push(stat);
     }
-    if(stat.id.indexOf(''))
-  });
+
 
   // Transportの統計からselectedCandidatePairIdを取得
   trasportArray.forEach(transport => {
