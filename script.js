@@ -48,9 +48,11 @@ const getInfo = mediaConnection => {
   }
 }
 
-let data = [];
 
 async function getRTCStats(statsObject){
+
+  let data = [];
+
   let trasportArray = [];
   let candidateArray = [];
   let candidatePairArray = [];
@@ -75,7 +77,6 @@ async function getRTCStats(statsObject){
 
   let stats = await statsObject;
 
-  // 取得できた統計情報オブジェクトのIDから必要な物を操作しやすいように配列に格納
   stats.forEach(stat => {
     if(stat.id.indexOf('RTCTransport') !== -1){
         trasportArray.push(stat);
@@ -109,75 +110,76 @@ async function getRTCStats(statsObject){
     }
   });
 
-    // Transportの統計からselectedCandidatePairIdを取得
-    trasportArray.forEach(transport => {
-        if(transport.dtlsState === 'connected'){
-            candidatePairId = transport.selectedCandidatePairId;
+  // Transportの統計からselectedCandidatePairIdを取得
+  trasportArray.forEach(transport => {
+      if(transport.dtlsState === 'connected'){
+          candidatePairId = transport.selectedCandidatePairId;
+      }
+  });
+  // selectedCandidatePairIdをもとに通信に成功している、LocalCandidateID/RemoteCandidateIDを取り出す
+  candidatePairArray.forEach(candidatePair => {
+      if(candidatePair.state === 'succeeded' && candidatePair.id === candidatePairId){
+          localCandidateId = candidatePair.localCandidateId;
+          remoteCandidateId = candidatePair.remoteCandidateId;
+      }
+  });
+  // LocalCandidateID/RemoteCandidateIDから、LocalCandidate/RemoteCandidateを取り出す
+  candidateArray.forEach(candidate => {
+      if(candidate.id === localCandidateId){
+          localCandidate = candidate;
+      }
+      if(candidate.id === remoteCandidateId){
+          remoteCandidate = candidate;
+      }
+  });
+  // InboundRTPAudioStreamのcodecIdをもとに、codecArrayから利用されているCodec情報を取り出す
+  inboundRTPAudioStreamArray.forEach(inboundRTPAudioStream => {
+    codecArray.forEach(codec => {
+      if(inboundRTPAudioStream.codecId === codec.id){
+        inboundAudioCodec = codec;
+      }
+    });
+  });
+  
+  // inboundRTPVideoStreamArrayのcodecIdをもとに、codecArr
+  inboundRTPVideoStreamArray.forEach(inboundRTPVideoStream => {
+    codecArray.forEach(codec => {
+        if(inboundRTPVideoStream.codecId === codec.id){
+          inboundVideoCodec = codec;
         }
     });
-    // selectedCandidatePairIdをもとに通信に成功している、LocalCandidateID/RemoteCandidateIDを取り出す
-    candidatePairArray.forEach(candidatePair => {
-        if(candidatePair.state === 'succeeded' && candidatePair.id === candidatePairId){
-            localCandidateId = candidatePair.localCandidateId;
-            remoteCandidateId = candidatePair.remoteCandidateId;
-        }
-    });
-    // LocalCandidateID/RemoteCandidateIDから、LocalCandidate/RemoteCandidateを取り出す
-    candidateArray.forEach(candidate => {
-        if(candidate.id === localCandidateId){
-            localCandidate = candidate;
-        }
-        if(candidate.id === remoteCandidateId){
-            remoteCandidate = candidate;
-        }
-    });
-    // InboundRTPAudioStreamのcodecIdをもとに、codecArrayから利用されているCodec情報を取り出す
-    inboundRTPAudioStreamArray.forEach(inboundRTPAudioStream => {
-        codecArray.forEach(codec => {
-            if(inboundRTPAudioStream.codecId === codec.id){
-                inboundAudioCodec = codec;
-            }
-        });
-    });
-    // inboundRTPVideoStreamArrayのcodecIdをもとに、codecArr
-    inboundRTPVideoStreamArray.forEach(inboundRTPVideoStream => {
-      codecArray.forEach(codec => {
-          if(inboundRTPVideoStream.codecId === codec.id){
-              inboundVideoCodec = codec;
-          }
-      });
   });
   // outboundRTPAudioStreamArrayのcodecIdをもとに、codecArrayから利用されているCodec情報を取り出す     
   outboundRTPAudioStreamArray.forEach(outboundRTPAudioStream => {
-      codecArray.forEach(codec => {
-          if(outboundRTPAudioStream.codecId === codec.id){
-              outboundAudioCodec = codec;
-          }
-      });
+    codecArray.forEach(codec => {
+      if(outboundRTPAudioStream.codecId === codec.id){
+        outboundAudioCodec = codec;
+      }
+    });
   });
   // outboundRTPVideoStreamArrayのcodecIdをもとに、codecArrayから利用されているCodec情報を取り出す
   outboundRTPVideoStreamArray.forEach(outboundRTPVideo => {
-      codecArray.forEach(codec => {
-          if(outboundRTPVideo.codecId === codec.id){
-              outboundVideoCodec = codec;
-          }
-      });
+    codecArray.forEach(codec => {
+      if(outboundRTPVideo.codecId === codec.id){
+        outboundVideoCodec = codec;
+      }
+    });
   });
   // mediaStreamTrack_senderArrayには送信中のMediaStreamTrack(Audio/Video共に)が格納されているのでそれぞれ取り出す        
   mediaStreamTrack_senderArray.forEach(mediaStreamTrack => {
-      if(mediaStreamTrack.kind === 'audio'){
-          mediaStreamTrack_local_audioArray.push(mediaStreamTrack)
-      }else if(mediaStreamTrack.kind === 'video'){
-          mediaStreamTrack_local_videoArray.push(mediaStreamTrack)
+    if(mediaStreamTrack.kind === 'audio'){
+        mediaStreamTrack_local_audioArray.push(mediaStreamTrack)
+    }else if(mediaStreamTrack.kind === 'video'){
+        mediaStreamTrack_local_videoArray.push(mediaStreamTrack)
       }
   });
   // mediaStreamTrack_receiverArrayには受信中のMediaStreamTrack(Audio/Video共に)が格納されているのでそれぞれ取り出す        
   mediaStreamTrack_receiverArray.forEach(mediaStreamTrack => {
-      if(mediaStreamTrack.kind === 'audio'){
-          mediaStreamTrack_remote_audioArray.push(mediaStreamTrack)
-      }else if(mediaStreamTrack.kind === 'video'){
-          mediaStreamTrack_remote_videoArray.push(mediaStreamTrack)
-      }
+    if(mediaStreamTrack.kind === 'audio'){
+        mediaStreamTrack_remote_audioArray.push(mediaStreamTrack)
+    }else if(mediaStreamTrack.kind === 'video'){
+        mediaStreamTrack_remote_videoArray.push(mediaStreamTrack)
+    }
   });  
   
   data[0] = ['項目', '値'];
