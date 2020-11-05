@@ -77,6 +77,8 @@ async function getRTCStats(statsObject){
 
   let stats = await statsObject;
 
+  console.log(stats);
+
   stats.forEach(stat => {
     if(stat.id.indexOf('RTCTransport') !== -1){
         trasportArray.push(stat);
@@ -108,6 +110,7 @@ async function getRTCStats(statsObject){
     if(stat.id.indexOf('RTCCodec') !== -1){
         codecArray.push(stat);
     }
+    if(stat.id.indexOf(''))
   });
 
   // Transportの統計からselectedCandidatePairIdを取得
